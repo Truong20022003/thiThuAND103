@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.FileUtils;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -27,6 +28,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.testthi1.databinding.ActivityMainBinding;
@@ -116,6 +118,25 @@ public class MainActivity extends AppCompatActivity implements OnClick {
             }
         });
 
+        //////////refresh
+        binding.main.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        httpRequest.callAPI().getListSanPham().enqueue(getListXeMay);
+                        binding.main.setRefreshing(true);
+                    }
+                }, 5000);
+
+                // Trong hàm onResponse hoặc onFailure của request tải dữ liệu
+                binding.main.setRefreshing(false);
+
+            }
+        });
+
 
     }
     // Hàm lấy danh sách
@@ -202,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
         alertDialog.show();
 
     }
+
     //////////////////////////////////////////////
     //////////////////////////////////////////////
     /////////////////////////////////////////////////////
@@ -214,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
         getImageAdd.launch(intent);
 
     }
+
     ActivityResultLauncher<Intent> getImageAdd = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -295,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
                             Toast.makeText(MainActivity.this, "Thêm xe máy thất bại", Toast.LENGTH_SHORT).show();
                         }
                     });
-                }else {
+                } else {
                     Toast.makeText(MainActivity.this, "Chưa có ảnh", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -305,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements OnClick {
     private RequestBody getRequestBody(String value) {
         return RequestBody.create(MediaType.parse("multipart/form-data"), value);
     }
-
 
 
     ///////////////////////////////////////
@@ -385,6 +407,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
         updateBinding.edtGiaBan.setText(list.get(position).getGia_ban_ph41980());
         updateBinding.edtMauSac.setText(list.get(position).getMausac_ph41980());
         updateBinding.edtMoTa.setText(list.get(position).getMo_ta_ph41980());
+
         String url = list.get(position).getHinh_anh_ph41980();
         String newUrl = url.replace("localhost", "10.0.2.2");
         if (url.isEmpty()) {
@@ -418,7 +441,11 @@ public class MainActivity extends AppCompatActivity implements OnClick {
                 String mauSac = updateBinding.edtMauSac.getText().toString();
                 String giaBan = updateBinding.edtGiaBan.getText().toString();
                 String moTa = updateBinding.edtMoTa.getText().toString();
-                XeMay updateXeMay = new XeMay(tenXe, mauSac, giaBan, moTa);
+                Map<String, RequestBody> requestBodyMap = new HashMap<>();
+                requestBodyMap.put("ten_xe_ph41980", getRequestBody(tenXe));
+                requestBodyMap.put("mausac_ph41980", getRequestBody(mauSac));
+                requestBodyMap.put("gia_ban_ph41980", getRequestBody(giaBan));
+                requestBodyMap.put("mo_ta_ph41980", getRequestBody(moTa));
 
                 if (fileimg != null) {
                     // Gọi phương thức để cập nhật dữ liệu lên server
@@ -429,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
                     String id = list.get(position).get_id();
                     try {
 
-                        httpRequest.callAPI().updateXeMay(id, updateXeMay, imagePart).enqueue(new Callback<Response<XeMay>>() {
+                        httpRequest.callAPI().updateXeMay(id, requestBodyMap, imagePart).enqueue(new Callback<Response<XeMay>>() {
                             @Override
                             public void onResponse(Call<Response<XeMay>> call, Response<Response<XeMay>> response) {
                                 if (response.isSuccessful()) {
@@ -456,7 +483,8 @@ public class MainActivity extends AppCompatActivity implements OnClick {
         });
 
     }
-/////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////
     // click qua màn hình chi tiết
@@ -464,7 +492,7 @@ public class MainActivity extends AppCompatActivity implements OnClick {
     public void onItemClick(int position) {
         Intent intent = new Intent(MainActivity.this, ChiTiet.class);
         String idXeMay = list.get(position).get_id();
-        intent.putExtra("id",idXeMay);
+        intent.putExtra("id", idXeMay);
         startActivity(intent);
         Log.d("wwwwwwwwwwww", String.valueOf(intent));
     }

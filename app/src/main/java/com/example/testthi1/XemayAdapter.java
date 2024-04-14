@@ -34,7 +34,7 @@ public XemayAdapter(Context context, List<XeMay> list,OnClick mListener){
     @Override
     public void onBindViewHolder(@NonNull ViewHodle holder, int position) {
         XeMay xeMay = list.get(position);
-    holder.binding.tenXe.setText("Tên xe: "+xeMay.getTen_xe_ph41980());
+        holder.binding.tenXe.setText("Tên xe: "+xeMay.getTen_xe_ph41980());
         holder.binding.mauSac.setText("Màu xe: "+xeMay.getMausac_ph41980());
         holder.binding.giaBan.setText("gia bán: "+xeMay.getGia_ban_ph41980());
         holder.binding.moTa.setText("Mô tả: "+xeMay.getMo_ta_ph41980());

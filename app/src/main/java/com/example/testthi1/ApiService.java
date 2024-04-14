@@ -27,12 +27,12 @@ public interface ApiService {
     @POST("addxemay")
     Call<Response<XeMay>> addXeMay(@PartMap Map<String, RequestBody> requestBodyMap,
                                        @Part MultipartBody.Part img);
-    
+
     @Multipart
     @PUT("updatexemay/{id}")
     Call<Response<XeMay>> updateXeMay(
             @Path("id") String id,
-            @Part("xemay") XeMay xeMay,
+            @PartMap Map<String, RequestBody> requestBodyMap,
             @Part MultipartBody.Part img
     );
 

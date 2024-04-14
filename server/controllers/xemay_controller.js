@@ -42,15 +42,18 @@ exports.updateXeMay = async (req, res, next) => {
             return res.status(400).json({ message: 'Không có tệp được gửi' });
         }
         const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${file.filename}`;
+        
         // nếu ảnh là array thì:
         // const { files } = req
         // const urlsImage = files.map((file) => `${req.protocol}://${req.get("host")}/uploads/${file.filename}`)
         const data = req.body;
+        let obj = {};
+        
         const updateXeMay = {
             ten_xe_ph41980: data.ten_xe_ph41980,
             mausac_ph41980: data.mausac_ph41980,
             gia_ban_ph41980: data.gia_ban_ph41980,
-            mo_ta_ph41980: data.hinh_anh_ph41980,
+            mo_ta_ph41980: data.mo_ta_ph41980,
             hinh_anh_ph41980: imageUrl
         }
         let result = await xemayModel.findByIdAndUpdate(id, updateXeMay, {
